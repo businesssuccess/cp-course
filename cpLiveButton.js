@@ -1,24 +1,3 @@
-function loadScript(src, callback) {
-    var script = document.createElement("script");
-    script.src = src;
-    script.onload = callback;
-    document.head.appendChild(script);
-}
-
-// Load Moment.js and Moment Timezone in sequence
-loadScript("https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js", function() {
-    loadScript("https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js", function() {
-        // Now that Moment.js and Moment Timezone are loaded, we can run the main code
-        main();
-    });
-});
-
-function main() {
-    // Your main code here
-    // Example usage: var now = moment();
-}
-
-
 // Include minimized Moment.js and Moment Timezone libraries for only America/New_York timezone
 // Ensure to add this in your HTML file:
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -31,10 +10,10 @@ var zoomCalls = [
         "CallName": "INSERT NAME OF IMPROMPTU MEETING HERE",
         "ZoomOrObvioURL": "https://us06web.zoom.us/j/86527841409?pwd=ks99w0RPbX2bIKS4Lh49CmNaDsYoHU.1",
         "live": "Sunday 5:00pm ET",
-        "courseID": "123456", //courseID
+        "courseID": "45579", //courseID
         "sectionID": "",
         "schedule": [
-            {"day": 0, "hour": 17, "minute": 0, "duration": 60} // Sunday 5pm ET, duration 60 minutes
+            {"day": 3, "hour": 23, "minute": 0, "duration": 60} // Sunday 5pm ET, duration 60 minutes
         ]
     },
     {
