@@ -25,7 +25,7 @@ var zoomCalls = [
     {
         "Enabled": true,
         "CallName": "CONNECT LAUNCH - Momentum Booster",
-        "ZoomOrObvioURL": "https://us06web.zoom.us/j/82015514549?pwd=bVIhMNHWUcjxdmk4lCpVaf6Kbkb019.1",  //FYM LAUNCH LINK
+        "ZoomOrObvioURL": "https://us06web.zoom.us/j/82015514549?pwd=bVIhMNHWUcjxdmk4lCpVaf6Kbkb019.1",
         "live": "Wednesday 5:00pm ET",
         "courseID": "45579",
         "sectionID": "248655",
@@ -113,4 +113,62 @@ function updateLiveRoomButton() {
         if (!call.Enabled) continue;
 
         for (var j = 0; j < call.schedule.length; j++) {
-            var schedule = call.schedule
+            var schedule = call.schedule[j];
+            var startMinutesSinceMidnight = schedule.hour * 60 + schedule.minute;
+            var endMinutesSinceMidnight = startMinutesSinceMidnight + schedule.duration;
+            var openMinutesSinceMidnight = startMinutesSinceMidnight - 10;
+            var soonStartMinutesSinceMidnight = startMinutesSinceMidnight - 30;
+
+            if (currentDay === schedule.day) {
+                if (currentMinutesSinceMidnight >= startMinutesSinceMidnight && currentMinutesSinceMidnight < endMinutesSinceMidnight) {
+                    newText = `${call.CallName} - ${call.live} - IN PROGRESS`;
+                    newHref = call.ZoomOrObvioURL;
+                    inProgress = true;
+                    break;
+                } else if (currentMinutesSinceMidnight >= openMinutesSinceMidnight && currentMinutesSinceMidnight < startMinutesSinceMidnight) {
+                    newText = `${call.CallName} - ${call.live} - ROOM OPEN`;
+                    newHref = call.ZoomOrObvioURL;
+                    break;
+                } else if (currentMinutesSinceMidnight >= soonStartMinutesSinceMidnight && currentMinutesSinceMidnight < openMinutesSinceMidnight) {
+                    newText = `${call.CallName} - ${call.live} - STARTING SOON`;
+                    newHref = call.ZoomOrObvioURL;
+                    break;
+                }
+            }
+        }
+        if (newText !== offlineText) break;
+    }
+
+    if (buttonText) buttonText.textContent = newText;
+    if (buttonLink) {
+        if (newText === offlineText) {
+            buttonLink.removeAttribute('href');
+            buttonLink.classList.add('disabled');
+            if (innerButton) {
+                innerButton.style.backgroundColor = "gray";
+                innerButton.style.opacity = "1.0";
+                innerButton.onmouseover = function() { innerButton.style.opacity = "0.9"; };
+                innerButton.onmouseout = function() { innerButton.style.opacity = "1.0"; };
+            }
+        } else {
+            buttonLink.setAttribute('href', newHref);
+            buttonLink.classList.remove('disabled');
+            if (innerButton) {
+                innerButton.style.backgroundColor = "#20a3d6";
+                innerButton.style.opacity = "1.0";
+                innerButton.onmouseover = function() { innerButton.style.opacity = "0.9"; };
+                innerButton.onmouseout = function() { innerButton.style.opacity = "1.0"; };
+            }
+        }
+    }
+
+    if (liveSessionImage) {
+        liveSessionImage.style.display = inProgress ? "block" : "none";
+    }
+}
+
+// Initial update on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateLiveRoomButton();
+    setInterval(updateLiveRoomButton, 30000);
+});
