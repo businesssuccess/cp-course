@@ -1,4 +1,6 @@
-    const msgSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=1737117292&single=true&output=csv";
+console.log("CPGlobalCourseMessage Version 1-1");
+
+const msgSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=1737117292&single=true&output=csv";
 
     // Function to fetch and parse data from Google Sheet
     function fetchMessagesFromSheet(callback) {
