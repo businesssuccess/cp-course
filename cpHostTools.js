@@ -66,7 +66,7 @@ function createProgramButtons(programs) {
 
             // Check if the course name is 'BRG / Admin Room' or 'Client Zoom Room' and change the color
             const isSpecialCourse = ['BRG / Admin Room', 'Client Zoom Room'].includes(program['Course Name']);
-            const buttonColor = isSpecialCourse ? '#1000FC' : 'red';
+            const buttonColor = isSpecialCourse ? '#000B71' : '#D30A16';
 
             Object.assign(button.style, {
                 backgroundColor: buttonColor,
