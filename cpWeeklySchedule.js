@@ -1,4 +1,4 @@
-console.log("CPWeeklySchedule Version 1");
+console.log("CPWeeklySchedule Version 1-13");
 
 // Define Google Sheet URL
 const liveCallsSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=0&single=true&output=csv";
@@ -10,14 +10,14 @@ function fetchLiveCalls(callback) {
         .then(csvText => {
             let calls = [];
             let rows = csvText.split("\n");
-            let headers = rows[0].split(",");
+            let headers = rows[0].split(",").map(header => header.trim()); // Trim headers for consistency
 
             for (let i = 1; i < rows.length; i++) {
                 let values = rows[i].split(",");
                 let callData = {};
 
                 headers.forEach((header, index) => {
-                    callData[header.trim()] = values[index] ? values[index].trim() : "";
+                    callData[header] = values[index] ? values[index].trim() : "";
                 });
 
                 if (callData['Enabled'] === "TRUE") {
@@ -42,18 +42,40 @@ function fetchLiveCalls(callback) {
                     }
                 }
             }
+
             callback(calls);
         })
         .catch(error => console.error("Error fetching Google Sheet data:", error));
 }
 
+// Function to check user enrollment
+function isUserEnrolled(call) {
+    const courseID = call['courseID'] && call['courseID'].trim(); // Trim to avoid whitespace issues
+    const enrolledInCourse = enrolledCourses.includes(courseID);
+    const sectionIDs = call['sectionID'] ? call['sectionID'].split(",").map(id => id.trim()) : [];
+    const enrolledInSection = sectionIDs.length === 0 || sectionIDs.some(id => enrolledSections.includes(id));
+
+    return enrolledInCourse && enrolledInSection;
+}
+
 // Function to display the weekly schedule
 function displayWeeklySchedule(calls) {
     const weeklyScheduleBlock = $('[data-title="weeklyScheduleBlock"] p');
+    const weeklyScheduleRow = $('#weeklyScheduleRow');
     const currentTime = moment.tz("America/New_York");
 
+    // Filter calls by user enrollment
+    const enrolledCalls = calls.filter(isUserEnrolled);
+
+    if (enrolledCalls.length === 0) {
+        weeklyScheduleRow.hide();
+        return;
+    } else {
+        weeklyScheduleRow.show();
+    }
+
     // Sort the calls by day and time
-    calls.sort((a, b) => {
+    enrolledCalls.sort((a, b) => {
         if (a.dayIndex === b.dayIndex) {
             if (a.schedule[0].hour === b.schedule[0].hour) {
                 return a.schedule[0].minute - b.schedule[0].minute;
@@ -65,7 +87,7 @@ function displayWeeklySchedule(calls) {
 
     let weeklyScheduleContent = '';
 
-    calls.forEach(call => {
+    enrolledCalls.forEach(call => {
         const schedule = call.schedule[0];
         const sessionStartTime = moment(currentTime).day(schedule.day).hour(schedule.hour).minute(schedule.minute);
         const oneHourBeforeSession = moment(sessionStartTime).subtract(1, 'hours');
