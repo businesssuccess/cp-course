@@ -1,4 +1,4 @@
-console.log("CPGlobalCourseMessage Version 1-1");
+console.log("CPGlobalCourseMessage Version 1-2");
 
 const msgSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=1737117292&single=true&output=csv";
 
@@ -64,24 +64,24 @@ const msgSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JY
         return true;
     }
 
-    // Function to filter messages by the current courseID and sectionID
-    function filterMessagesByEnrollment(messages) {
-        return messages.filter(message => {
-            const shouldDisplay = shouldDisplayMessage(message);
+// Function to filter messages by the current courseID and sectionID
+function filterMessagesByEnrollment(messages) {
+    return messages.filter(message => {
+        const shouldDisplay = shouldDisplayMessage(message);
 
-            // Check for enrolled section ID match
-            if (message.sectionID && enrolledSections.includes(message.sectionID) && shouldDisplay) {
-                return true;
+        // First, check if the course ID matches
+        if (message.courseID === currentCourseID && shouldDisplay) {
+            // If a section ID is specified, check for a match in enrolled sections
+            if (message.sectionID) {
+                return enrolledSections.includes(message.sectionID);
             }
+            // If no section ID is specified, return true for a matching course ID
+            return true;
+        }
 
-            // Check for course ID match if no section ID is specified
-            if (!message.sectionID && message.courseID === currentCourseID && shouldDisplay) {
-                return true;
-            }
-
-            return false;
-        });
-    }
+        return false;
+    });
+}
 
     // Function to display messages
     function displayMessages(messages) {
