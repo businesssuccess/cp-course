@@ -1,4 +1,4 @@
-console.log("CPGlobalCourseMessage Version 1-7");
+console.log("CPGlobalCourseMessage Version 1-8");
 
 const msgSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=1737117292&single=true&output=csv";
 
@@ -99,11 +99,15 @@ function displayMessages(messages) {
     let combinedMessages = '';
 
     if (globalMessages.length > 0) {
-        // Add global messages first with a line break
-        combinedMessages += globalMessages.map(msg => msg.Message).join('<br><br>') + '<br><br>';
+        // Add global messages first
+        combinedMessages += globalMessages.map(msg => msg.Message).join('<br><br>');
     }
 
     if (filteredMessages.length > 0) {
+        // Add a line break between global and specific messages only if both exist
+        if (combinedMessages) {
+            combinedMessages += '<br><br>';
+        }
         // Add specific course ID matched messages
         combinedMessages += filteredMessages.map(msg => msg.Message).join('<br><br>');
     }
