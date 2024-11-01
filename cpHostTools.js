@@ -1,4 +1,4 @@
-console.log("CPHostTools Version 1-0");
+console.log("CPHostTools Version 1-1");
 
 
 
