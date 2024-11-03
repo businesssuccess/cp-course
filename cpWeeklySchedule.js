@@ -1,4 +1,4 @@
-console.log("CPWeeklySchedule Version 1-14");
+console.log("CPWeeklySchedule Version 1-16");
 
 // Define Google Sheet URL
 const liveCallsSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=0&single=true&output=csv";
@@ -96,11 +96,11 @@ function displayWeeklySchedule(calls) {
         const isRoomOpen = currentTime.isBetween(fiveMinutesBeforeSession, sessionStartTime, null, '[)');
         const isInProgress = currentTime.isSameOrAfter(sessionStartTime) && currentTime.isBefore(moment(sessionStartTime).add(schedule.duration, 'minutes'));
 
-        // Create the call line
-        let callLine = `<a href="${call.ZoomOrObvioURL}" style="color: black; text-decoration: none;" onmouseover="this.children[0].style.textDecoration='underline'" onmouseout="this.children[0].style.textDecoration='none'"`;
+        // Create the call line using courseLink
+        let callLine = `<a href="${call.courseLink}" style="color: black; text-decoration: none;" onmouseover="this.children[0].style.textDecoration='underline'" onmouseout="this.children[0].style.textDecoration='none'"`;
 
         if (isInProgress || isRoomOpen) {
-            callLine += ` onclick="openObvioAndNavigate('${call.ZoomOrObvioURL}', '${call.ZoomOrObvioURL}'); return false;"`;
+            callLine += ` onclick="openObvioAndNavigate('${call.courseLink}', '${call.courseLink}'); return false;"`;
         }
 
         callLine += `><span style="text-decoration: none;">▶ ${call.live} - <b>${call.CallName}</b></span>`;
