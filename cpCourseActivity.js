@@ -1,4 +1,4 @@
-console.log("CPCourseActivity Version 1-3");
+console.log("CPCourseActivity Version 1-4");
 
 // Import Firestore functions for logging course activity
 import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
@@ -23,7 +23,7 @@ export async function logCourseActivity(email, courseId, activityData) {
     const todayDate = new Date().toISOString().split('T')[0];
     console.log("Today's Date:", todayDate);
 
-    // Placeholder for the IP address (replace with actual method to get the IP if needed)
+    // Placeholder for the IP address (use the global variable if available)
     const userIP = activityData.ip || "Unknown";
     console.log("User IP:", userIP);
 
