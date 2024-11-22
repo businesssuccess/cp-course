@@ -1,9 +1,10 @@
-console.log("CPHostTools Version 1-1");
-
-
+console.log("CPHostTools Version 1-5");
 
 // Define Google Sheet URL
 const programSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=114880507&single=true&output=csv";
+
+// Define guest stream link
+const guestStreamLink = "https://www.connectingpieces.com/guest-stream"; // Replace with the actual link
 
 // Function to fetch programs from Google Sheet CSV
 function fetchProgramsFromSheet(callback) {
@@ -89,7 +90,7 @@ function createProgramButtons(programs) {
                 } else {
                     // Directly open the link
                     window.open(link, '_blank');
-                    if (loggedInUserEmail === 'jason@funneljedi.com') {
+                    if (loggedInUserEmail === 'jason@funneljedi.com' && guestStreamLink) {
                         window.open(guestStreamLink, '_blank');
                     }
                 }
@@ -102,9 +103,76 @@ function createProgramButtons(programs) {
     if (container.children.length > 0) {
         wrapper.appendChild(container);
         document.body.appendChild(wrapper);
-        //console.log("Program buttons added to the page.");
-    } else {
-        //console.log("No matching programs found for the current user.");
+    }
+}
+
+// Function to display a popup
+function showPopup(link) {
+    // Check if a popup already exists
+    let popup = document.getElementById('customPopup');
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'customPopup';
+        Object.assign(popup.style, {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#D30A16',
+            color: 'white',
+            padding: '20px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            zIndex: '10000',
+            textAlign: 'center',
+            borderRadius: '8px',
+            maxWidth: '300px',
+            width: '90%',
+            fontFamily: 'Arial, sans-serif'
+        });
+
+        const message = document.createElement('p');
+        message.innerText = "If you are the host, please log into Adam's Zoom account first.";
+        message.style.marginBottom = '15px';
+        popup.appendChild(message);
+
+        const openRoomButton = document.createElement('button');
+        openRoomButton.innerText = 'Open Room';
+        Object.assign(openRoomButton.style, {
+            backgroundColor: 'white',
+            color: '#D30A16',
+            border: 'none',
+            padding: '10px 20px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            borderRadius: '5px',
+            marginRight: '10px'
+        });
+        openRoomButton.onclick = function() {
+            window.open(link, '_blank');
+            if (loggedInUserEmail === 'jason@funneljedi.com' && guestStreamLink) {
+                window.open(guestStreamLink, '_blank');
+            }
+            document.body.removeChild(popup);
+        };
+        popup.appendChild(openRoomButton);
+
+        const closeButton = document.createElement('button');
+        closeButton.innerText = 'Close';
+        Object.assign(closeButton.style, {
+            backgroundColor: 'white',
+            color: '#D30A16',
+            border: 'none',
+            padding: '10px 20px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            borderRadius: '5px'
+        });
+        closeButton.onclick = function() {
+            document.body.removeChild(popup);
+        };
+        popup.appendChild(closeButton);
+
+        document.body.appendChild(popup);
     }
 }
 
