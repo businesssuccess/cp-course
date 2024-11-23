@@ -1,4 +1,4 @@
-console.log("CPWelcomeLesson Version 1-0");
+console.log("CPWelcomeLesson Version 1-2");
 
 // URL of the Google Sheet CSV
 const liveCallSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=114880507&single=true&output=csv";
@@ -19,10 +19,19 @@ function fetchCourseData(callback) {
                 return rowData;
             });
 
-            // Filter for matching Course ID and Active rows
-            const matchingEntries = data.filter(entry => entry["CourseID"] === currentCourseID && entry["Active"] === "TRUE");
+            // Filter for active rows matching current CourseID and, if provided, the SectionID
+            const matchingEntries = data.filter(entry => 
+                entry["Active"] === "TRUE" &&
+                entry["CourseID"] === currentCourseID &&
+                (!entry["SectionID"] || enrolledSections.includes(entry["SectionID"]))
+            );
 
-            callback(matchingEntries);
+            // Sort entries to prioritize higher levels (topmost rows in sheet)
+            const sortedEntries = matchingEntries.sort((a, b) => 
+                data.indexOf(a) - data.indexOf(b)
+            );
+
+            callback(sortedEntries);
         })
         .catch(error => console.error("Error fetching data from Google Sheet:", error));
 }
@@ -30,7 +39,8 @@ function fetchCourseData(callback) {
 // Redirect logic based on the fetched data
 function redirectToWelcomeLesson(matchingEntries) {
     if (matchingEntries.length > 0) {
-        const entry = matchingEntries[0]; // Use the first match
+        // The first matching entry will be the highest priority due to sorting
+        const entry = matchingEntries[0];
 
         const welcomeVideoEnabled = entry["WelcomeVideoEnabled"] === "TRUE";
         const welcomeLessonID = entry["WelcomeLessonID"];
