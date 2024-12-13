@@ -1,4 +1,4 @@
-console.log("CPWeeklySchedule Version 2-1");
+console.log("CPWeeklySchedule Version 2-2");
 
 // Define Google Sheet URL
 const liveCallsSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=0&single=true&output=csv";
@@ -27,8 +27,14 @@ function fetchLiveCalls(callback) {
                         // Handle date-based calls
                         const callDate = moment.tz(callData['Date'], "DD/MM/YYYY", "America/New_York");
                         if (callDate.isValid()) {
+                            const [hour, minute] = callData.Time ? callData.Time.split(":").map(Number) : [0, 0];
+                            callDate.hour(hour).minute(minute);
                             callData.callDate = callDate;
-                            callData.live = `${callDate.format("dddd, MMM D")} - <b>${callData.CallName}</b>`;
+
+                            // Format for current week
+                            callData.liveCurrentWeek = `${callDate.format("dddd h:mm A")} ET - <b>${callData.CallName}</b>`;
+                            // Format for upcoming calls
+                            callData.liveUpcoming = `${callDate.format("dddd, MMM D")} at ${callDate.format("h:mm A")} ET - <b>${callData.CallName}</b>`;
                             callData.isRecurring = false; // Mark as non-recurring
                             calls.push(callData);
                         }
@@ -36,17 +42,11 @@ function fetchLiveCalls(callback) {
                         // Handle recurring weekly calls
                         callData.dayIndex = dayNames.indexOf(callData.Day);
                         const [hour, minute] = callData.Time.split(":").map(Number);
-                        callData.schedule = [{
-                            day: callData.dayIndex,
-                            hour: hour,
-                            minute: minute,
-                            duration: parseInt(callData.duration) || 60
-                        }];
                         const period = hour >= 12 ? 'pm' : 'am';
                         const displayHour = hour % 12 || 12;
                         const today = moment.tz("America/New_York").startOf('week').add(callData.dayIndex, 'days');
                         callData.callDate = today.clone().hour(hour).minute(minute); // Generate date for sorting
-                        callData.live = `${callData.Day} ${displayHour}:${minute.toString().padStart(2, '0')} ${period.toUpperCase()} ET - <b>${callData.CallName}</b>`;
+                        callData.liveCurrentWeek = `${callData.Day} ${displayHour}:${minute.toString().padStart(2, '0')} ${period.toUpperCase()} ET - <b>${callData.CallName}</b>`;
                         callData.isRecurring = true; // Mark as recurring
                         calls.push(callData);
                     }
@@ -107,7 +107,7 @@ function displayWeeklySchedule(calls) {
     // Sort current week calls by date and time
     currentWeekCalls.sort((a, b) => a.callDate.diff(b.callDate));
     currentWeekCalls.forEach(call => {
-        weeklyScheduleContent += `<div>▶ ${call.live}</div>`;
+        weeklyScheduleContent += `<div>▶ ${call.liveCurrentWeek}</div>`;
     });
 
     // Display upcoming calls
@@ -115,7 +115,7 @@ function displayWeeklySchedule(calls) {
         weeklyScheduleContent += `<hr><h3>UPCOMING CALLS</h3>`;
         upcomingCalls.sort((a, b) => a.callDate.diff(b.callDate));
         upcomingCalls.forEach(call => {
-            upcomingScheduleContent += `<div>▶ ${call.live}</div>`;
+            upcomingScheduleContent += `<div>▶ ${call.liveUpcoming}</div>`;
         });
     }
 
