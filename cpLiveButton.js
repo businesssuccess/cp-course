@@ -1,5 +1,7 @@
 console.log("CPLiveButton Version 2-10");
 
+// bump to force CDN update
+
 // Define Google Sheet URL
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=0&single=true&output=csv";
 
