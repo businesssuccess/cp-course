@@ -1,4 +1,4 @@
-console.log("CPLiveButton Version 2-9");
+console.log("CPLiveButton Version 2-10");
 
 // Define Google Sheet URL
 const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR0hAJJi-JYNbxLJQG8SOe0E36EYFi04AMZG3JP4YSzrSyHx0DXoJv_z8XKOXezYt62pumzK5eZN1hM/pub?gid=0&single=true&output=csv";
@@ -14,6 +14,8 @@ function fetchZoomCallsFromSheet(callback) {
 
             for (let i = 1; i < rows.length; i++) {
                 let values = rows[i].split(",");
+                if (values.length < headers.length) continue; // ✅ Prevent broken rows
+
                 let zoomCall = {};
 
                 headers.forEach((header, index) => {
@@ -23,21 +25,24 @@ function fetchZoomCallsFromSheet(callback) {
                 // Convert fields
                 zoomCall.Enabled = zoomCall.Enabled === "TRUE";
 
-                // Parse day as a string (e.g., "Sunday") and time as "HH:mm"
+                // Parse the event date (new logic)
+                if (zoomCall.Date) {
+                    zoomCall.eventDate = moment.tz(zoomCall.Date, "D/M/YYYY", "America/New_York"); // ✅ NEW: Parse the Date column
+                }
+
+                // Parse day and time
                 const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                zoomCall.dayIndex = dayNames.indexOf(zoomCall.Day); // Get the day index (0 for Sunday, etc.)
-                
-                // Parse the time field into hours and minutes
+                zoomCall.dayIndex = dayNames.indexOf(zoomCall.Day);
+
                 if (zoomCall.Time) {
                     const [hour, minute] = zoomCall.Time.split(":").map(Number);
                     zoomCall.schedule = [{
                         day: zoomCall.dayIndex,
                         hour: hour,
                         minute: minute,
-                        duration: parseInt(zoomCall.duration) || 60 // Default duration to 60 minutes if not provided
+                        duration: parseInt(zoomCall.duration) || 60
                     }];
 
-                    // Generate the 'live' text automatically
                     zoomCall.live = `${zoomCall.Day} ${hour % 12 || 12}:${minute.toString().padStart(2, '0')} ${hour >= 12 ? 'pm' : 'am'} ET`;
                 } else {
                     console.error("Invalid time format in the data.");
@@ -83,17 +88,20 @@ function updateLiveRoomButton(zoomCalls) {
     let newHref = "#";
     let inProgress = false;
 
-    // Filter the calls based on user enrollment
     const availableZoomCalls = filterZoomCallsByEnrollment(zoomCalls);
 
-    // Check each available call to update the button
     for (const call of availableZoomCalls) {
         if (call.Enabled && call.dayIndex !== -1) {
+            // ✅ Skip past events if a Date is provided
+            if (call.eventDate && now.isAfter(call.eventDate.clone().endOf('day'))) {
+                continue;
+            }
+
             for (const schedule of call.schedule) {
                 const startMinutesSinceMidnight = schedule.hour * 60 + schedule.minute;
                 const endMinutesSinceMidnight = startMinutesSinceMidnight + schedule.duration;
-                const openMinutesSinceMidnight = startMinutesSinceMidnight - 10; // 10 minutes before live time
-                const soonStartMinutesSinceMidnight = startMinutesSinceMidnight - 15; // 15 minutes before live time
+                const openMinutesSinceMidnight = startMinutesSinceMidnight - 10;
+                const soonStartMinutesSinceMidnight = startMinutesSinceMidnight - 15;
 
                 if (currentDay === schedule.day) {
                     if (currentMinutesSinceMidnight >= startMinutesSinceMidnight && currentMinutesSinceMidnight < endMinutesSinceMidnight) {
@@ -117,7 +125,6 @@ function updateLiveRoomButton(zoomCalls) {
         if (newText !== "Live Room Is Currently Offline") break;
     }
 
-    // Update the button text and href
     if (buttonText) buttonText.textContent = newText;
     if (buttonLink) {
         if (newText === "Live Room Is Currently Offline") {
@@ -144,7 +151,6 @@ function updateLiveRoomButton(zoomCalls) {
 
 // Initial call to update the button and hide the element on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Hide the element with the CSS ID 'liveSession'
     const liveSessionElement = document.getElementById('liveSession');
     if (liveSessionElement) {
         liveSessionElement.style.display = 'none';
